@@ -1,6 +1,7 @@
 # vapor-wkhtmltopdf
 
 ![Swift](http://img.shields.io/badge/swift-3.0-brightgreen.svg)
+![Vapor](http://img.shields.io/badge/vapor-1.5-brightgreen.svg)
 
 Vapor library for converting HTML (Leaf or otherwise) into PDF files using
 [wkhtmltopdf](http://wkhtmltopdf.org/).
