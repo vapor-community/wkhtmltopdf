@@ -1,7 +1,7 @@
 import Foundation
 
-#if os(macOS)
-typealias Task = Process
+#if os(Linux) && !swift(>=3.1)
+typealias Process = Task
 #endif
 
 extension Document {
@@ -30,7 +30,7 @@ extension Document {
     }
     wkArgs += pageFiles
     // Call wkhtmltopdf and retrieve the result data
-    let wk = Task()
+    let wk = Process()
     let stdout = Pipe()
     wk.launchPath = "/usr/local/bin/wkhtmltopdf"
     wk.arguments = wkArgs
