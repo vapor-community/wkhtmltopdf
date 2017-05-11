@@ -4,6 +4,13 @@
 ![Vapor](http://img.shields.io/badge/vapor-1.5-brightgreen.svg)
 ![Travis](https://travis-ci.org/vapor-community/wkhtmltopdf.svg?branch=master)
 
+---
+
+**Vapor 2**: this package is *not* compatible with Vapor 2 beta. Once Vapor 2
+moves out of beta, this package will be updated.
+
+---
+
 Vapor library for converting HTML (Leaf or otherwise) into PDF files using
 [wkhtmltopdf](http://wkhtmltopdf.org/).
 
