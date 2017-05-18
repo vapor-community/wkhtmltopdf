@@ -1,17 +1,10 @@
 # wkhtmltopdf
 
 ![Swift](http://img.shields.io/badge/swift-3.1-brightgreen.svg)
-![Vapor](http://img.shields.io/badge/vapor-1.5-brightgreen.svg)
+![Vapor](http://img.shields.io/badge/vapor-2.0-brightgreen.svg)
 ![Travis](https://travis-ci.org/vapor-community/wkhtmltopdf.svg?branch=master)
 
----
-
-**Vapor 2**: this package is *not* compatible with Vapor 2 beta. Once Vapor 2
-moves out of beta, this package will be updated.
-
----
-
-Vapor library for converting HTML (Leaf or otherwise) into PDF files using
+Vapor 2 library for converting HTML (Leaf or otherwise) into PDF files using
 [wkhtmltopdf](http://wkhtmltopdf.org/).
 
 ## 📘 Overview
@@ -44,7 +37,7 @@ document.pages = [page1, page2, page3]
 // Render to a PDF
 let pdf = try document.generatePDF()
 // Now you can return the PDF as a response, if you want
-let response = Response(status: .ok, body: .data(try pdf.makeBytes()))
+let response = Response(status: .ok, body: .data(pdf))
 response.headers["Content-Type"] = "application/pdf"
 return response
 ```
@@ -73,6 +66,13 @@ Here is a worked example Leaf file which loads CSS and images. It uses the
   </body>
 </html>
 ```
+
+### Zoom calibration
+
+Across different platforms, `wkhtmltopdf` can require different zoom levels to
+ensure that 1 mm in HTML equals 1 mm in PDF. The default zoom level is `1.3`,
+which has been found to work well on Linux, but if you need a different zoom
+level set the static property `Document.zoom` before doing any rendering.
 
 ### Why Pages?
 

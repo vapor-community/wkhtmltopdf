@@ -1,5 +1,8 @@
 public class Document {
 
+  // This may need changing across different platforms and deployments.
+  static var zoom: String = "1.3"
+
   let topMargin: Int
   let rightMargin: Int
   let bottomMargin: Int
