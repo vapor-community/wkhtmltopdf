@@ -1,5 +1,5 @@
 import Foundation
-import Vapor
+import Service
 
 #if os(Linux) && !swift(>=3.1)
 typealias Process = Task
@@ -7,10 +7,10 @@ typealias Process = Task
 
 extension Document {
 
-    public func generatePDF(on req: Request) throws -> Future<Data> {
-        let sharedThreadPool = try req.make(BlockingIOThreadPool.self)
+    public func generatePDF(on container: Container) throws -> Future<Data> {
+        let sharedThreadPool = try container.make(BlockingIOThreadPool.self)
 
-        return sharedThreadPool.runIfActive(eventLoop: req.eventLoop) { () -> Data in
+        return sharedThreadPool.runIfActive(eventLoop: container.eventLoop) { () -> Data in
             let fileManager = FileManager.default
             // Create the temp folder if it doesn't already exist
             let workDir = "/tmp/vapor-wkhtmltopdf"
