@@ -1,10 +1,6 @@
 import Foundation
 import Service
 
-#if os(Linux) && !swift(>=3.1)
-typealias Process = Task
-#endif
-
 extension Document {
 
     public func generatePDF(on container: Container) throws -> Future<Data> {
@@ -17,7 +13,7 @@ extension Document {
             try fileManager.createDirectory(atPath: workDir, withIntermediateDirectories: true)
             // Save input pages to temp files, and build up args to wkhtmltopdf
             var wkArgs: [String] = [
-                "--zoom", Document.zoom,
+                "--zoom", self.zoom,
                 "--quiet",
                 "-s", self.paperSize,
                 "-T", "\(self.topMargin)mm",
@@ -29,7 +25,7 @@ extension Document {
             let pageFiles: [String] = try self.pages.map { page in
                 let name = UUID().uuidString + ".html"
                 let filename = "\(workDir)/\(name)"
-                try File(data: page.content, filename: filename).data.write(to: URL(fileURLWithPath: filename))
+                try page.content.write(to: URL(fileURLWithPath: filename))
                 return filename
             }
             defer {

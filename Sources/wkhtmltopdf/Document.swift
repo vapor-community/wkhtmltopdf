@@ -1,8 +1,6 @@
 public class Document {
 
-    // This may need changing across different platforms and deployments.
-    static var zoom: String = "1.3"
-
+    let zoom: String
     let topMargin: Int
     let rightMargin: Int
     let bottomMargin: Int
@@ -12,7 +10,8 @@ public class Document {
 
     public var pages: [Page] = []
     
-    public init(size: String = "A4", margins all: Int? = nil, top: Int? = nil, right: Int? = nil, bottom: Int? = nil, left: Int? = nil) {
+    public init(size: String = "A4", zoom: String? = nil, margins all: Int? = nil, top: Int? = nil, right: Int? = nil, bottom: Int? = nil, left: Int? = nil) {
+        self.zoom = zoom ?? "1.3"
         paperSize = size
         topMargin = all ?? top ?? 20
         rightMargin = all ?? right ?? 20
