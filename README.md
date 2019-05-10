@@ -28,29 +28,36 @@ and then call `generatePDF(on: Request)`. Here is a full example:
 import wkhtmltopdf
 
 func pdf(_ req: Request) -> Future<Response> {
-    // Create document. Margins in mm, can be set individually or all at once.
+     // Create document. Margins in mm, can be set individually or all at once.
     // If no margins are set, the default is 20mm.
     let document = Document(margins: 15)
     // Create a page from an HTML string.
     let page1 = Page("<p>Page from direct HTML</p>")
+
     // Create a page from a Leaf template.
-    let page2 = Page(drop, view: "page_from_leaf_template")
+    let page2 = try req.view().render("page_from_leaf_template")
+
     // Create a page from a Leaf template with Context variables.
-    let page3 = Page(drop, view: "page_from_leaf_template", [
-        "firstName": "Peter",
-        "lastName": "Pan"
-        ])
-    // Add the pages to the document
-    document.pages = [page1, page2, page3]
-    // Render to a PDF
-    let pdf = try document.generatePDF(on: req)
-    // Now you can return the PDF as a response, if you want
-    return pdf.map { data -> Response in
-        let http = HTTPResponse(status: HTTPResponseStatus.ok,
-                                headers: HTTPHeaders([("Content-Type", "application/pdf")]),
-                                body: data)
-        return Response(http: http,
-                        using: req)
+    let page3 = try req.view().render("page_from_leaf_template", [ "firstName": "Peter",
+                                                               "lastName": "Pan"])
+    let pages = [ page2, page3].flatten(on: req)
+        .map { views in
+            return views.map { Page($0.data) }
+        }
+
+    return pages.flatMap { pages in
+        // Add the pages to the document
+        document.pages = [page1] + pages
+        // Render to a PDF
+        let pdf = try document.generatePDF(on: req)
+        // Now you can return the PDF as a response, if you want
+        return pdf.map { data -> Response in
+            let http = HTTPResponse(status: .ok,
+                                    headers: HTTPHeaders([("Content-Type", "application/pdf")]),
+                                    body: data)
+            return Response(http: http,
+                            using: req)
+        }
     }
 }
 ```
