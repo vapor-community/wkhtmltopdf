@@ -1,15 +1,13 @@
-import Bits
+import Foundation
 
 public struct Page {
+    let content: Data
 
-  let content: Bytes
+    public init(_ content: Data) {
+        self.content = content
+    }
 
-  public init(_ content: Bytes) {
-    self.content = content
-  }
-
-  public init(_ content: String) {
-    self.content = content.makeBytes()
-  }
-
+    public init(_ content: String) {
+        self.content = Data(content.utf8)
+    }
 }

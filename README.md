@@ -1,11 +1,18 @@
 # wkhtmltopdf
 
-![Swift](http://img.shields.io/badge/swift-3.1-brightgreen.svg)
-![Vapor](http://img.shields.io/badge/vapor-2.0-brightgreen.svg)
+![Swift](http://img.shields.io/badge/swift-4.2-brightgreen.svg)
+![Vapor](http://img.shields.io/badge/vapor-3.0-brightgreen.svg)
 ![Travis](https://travis-ci.org/vapor-community/wkhtmltopdf.svg?branch=master)
 
-Vapor 2 library for converting HTML (Leaf or otherwise) into PDF files using
+Vapor 3 library for converting HTML (Leaf or otherwise) into PDF files using
 [wkhtmltopdf](http://wkhtmltopdf.org/).
+
+## Getting Started
+
+Add the following in your `Package.swift` file
+```Swift
+.package(url: "https://github.com/vapor-community/wkhtmltopdf.git", from: "2.0.0"),
+```
 
 ## 📘 Overview
 
@@ -15,31 +22,44 @@ library is tested on version 0.12.4. Your binary should be installed at
 installed correctly.
 
 To create a PDF, create and configure a `Document`, add one or more `Page`s,
-and then call `generatePDF()`. Here is a full example:
+and then call `generatePDF(on: Request)`. Here is a full example:
 
 ```Swift
 import wkhtmltopdf
 
-// Create document. Margins in mm, can be set individually or all at once.
-// If no margins are set, the default is 20mm.
-let document = Document(margins: 15)
-// Create a page from an HTML string.
-let page1 = Page("<p>Page from direct HTML</p>")
-// Create a page from a Leaf template.
-let page2 = Page(drop, view: "page_from_leaf_template")
-// Create a page from a Leaf template with Context variables.
-let page3 = Page(drop, view: "page_from_leaf_template", [
-  "firstName": "Peter",
-  "lastName": "Pan"
-])
-// Add the pages to the document
-document.pages = [page1, page2, page3]
-// Render to a PDF
-let pdf = try document.generatePDF()
-// Now you can return the PDF as a response, if you want
-let response = Response(status: .ok, body: .data(pdf))
-response.headers["Content-Type"] = "application/pdf"
-return response
+func pdf(_ req: Request) -> Future<Response> {
+     // Create document. Margins in mm, can be set individually or all at once.
+    // If no margins are set, the default is 20mm.
+    let document = Document(margins: 15)
+    // Create a page from an HTML string.
+    let page1 = Page("<p>Page from direct HTML</p>")
+
+    // Create a page from a Leaf template.
+    let page2 = try req.view().render("page_from_leaf_template")
+
+    // Create a page from a Leaf template with Context variables.
+    let page3 = try req.view().render("page_from_leaf_template", [ "firstName": "Peter",
+                                                               "lastName": "Pan"])
+    let pages = [ page2, page3].flatten(on: req)
+        .map { views in
+            return views.map { Page($0.data) }
+        }
+
+    return pages.flatMap { pages in
+        // Add the pages to the document
+        document.pages = [page1] + pages
+        // Render to a PDF
+        let pdf = try document.generatePDF(on: req)
+        // Now you can return the PDF as a response, if you want
+        return pdf.map { data -> Response in
+            let http = HTTPResponse(status: .ok,
+                                    headers: HTTPHeaders([("Content-Type", "application/pdf")]),
+                                    body: data)
+            return Response(http: http,
+                            using: req)
+        }
+    }
+}
 ```
 
 In your Leaf file, you may want to load resources such as images, CSS
