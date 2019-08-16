@@ -16,9 +16,10 @@ Add the following in your `Package.swift` file
 
 ## 📘 Overview
 
-First, install [wkhtmltopdf](http://wkhtmltopdf.org/downloads.html). This
-library is tested on version 0.12.4. Specify the location of `wkhtmltopdf` in the `Document` initialiser. The default is `/usr/local/bin/wkhtmltopdf`. Run it to ensure it and any dependencies are
-installed correctly.
+First, install [wkhtmltopdf](http://wkhtmltopdf.org/downloads.html). This 
+library is tested on version 0.12.4. Specify the location of `wkhtmltopdf` 
+in the `Document` initialiser. The default is `/usr/local/bin/wkhtmltopdf`. 
+Run it to ensure it and any dependencies are installed correctly.
 
 To create a PDF, create and configure a `Document`, add one or more `Page`s,
 and then call `generatePDF(on: Request)`. Here is a full example:
