@@ -36,7 +36,7 @@ extension Document {
             // Call wkhtmltopdf and retrieve the result data
             let wk = Process()
             let stdout = Pipe()
-            wk.launchPath = "/usr/local/bin/wkhtmltopdf"
+            wk.launchPath = self.launchPath
             wk.arguments = wkArgs
             wk.arguments?.append("-") // output to stdout
             wk.standardOutput = stdout
