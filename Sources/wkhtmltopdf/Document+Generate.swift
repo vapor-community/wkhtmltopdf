@@ -21,7 +21,9 @@ extension Document {
                 "-B", "\(self.bottomMargin)mm",
                 "-L", "\(self.leftMargin)mm",
             ]
-
+            
+            wkArgs += self.wkArgs
+            
             let pageFiles: [String] = try self.pages.map { page in
                 let name = UUID().uuidString + ".html"
                 let filename = "\(workDir)/\(name)"
@@ -33,6 +35,7 @@ extension Document {
             }
 
             wkArgs += pageFiles
+            
             // Call wkhtmltopdf and retrieve the result data
             let wk = Process()
             let stdout = Pipe()
@@ -41,6 +44,7 @@ extension Document {
             wk.arguments?.append("-") // output to stdout
             wk.standardOutput = stdout
             wk.launch()
+            
             let pdf = stdout.fileHandleForReading.readDataToEndOfFile()
             return pdf
         }
