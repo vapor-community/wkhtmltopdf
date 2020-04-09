@@ -1,4 +1,4 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.2
 import PackageDescription
 
 let package = Package(
@@ -6,20 +6,22 @@ let package = Package(
     products: [
         .library(
             name: "wkhtmltopdf",
-            targets: ["wkhtmltopdf"]),
+            targets: ["wkhtmltopdf"]
+        ),
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0"),
-        .package(url: "https://github.com/vapor/service.git", from: "1.0.0")
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.13.1"),
     ],
     targets: [
         .target(
             name: "wkhtmltopdf",
             dependencies: [
-                "Service"
-            ]),
+                .product(name: "NIO", package: "swift-nio")
+            ]
+        ),
         .testTarget(
             name: "wkhtmltopdfTests",
-            dependencies: ["wkhtmltopdf", "Vapor"]),
+            dependencies: ["wkhtmltopdf"]
+        ),
     ]
 )
