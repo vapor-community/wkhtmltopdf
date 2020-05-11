@@ -1,23 +1,23 @@
 # wkhtmltopdf
 
-![Swift](http://img.shields.io/badge/swift-4.2-brightgreen.svg)
-![Vapor](http://img.shields.io/badge/vapor-3.0-brightgreen.svg)
+![Swift](http://img.shields.io/badge/swift-5.2-brightgreen.svg)
+![Vapor](http://img.shields.io/badge/vapor-4.0-brightgreen.svg)
 ![Travis](https://travis-ci.org/vapor-community/wkhtmltopdf.svg?branch=master)
 
-Vapor 3 library for converting HTML (Leaf or otherwise) into PDF files using
+Vapor 4 library for converting HTML (Leaf or otherwise) into PDF files using
 [wkhtmltopdf](http://wkhtmltopdf.org/).
 
 ## Getting Started
 
 Add the following in your `Package.swift` file
 ```Swift
-.package(url: "https://github.com/vapor-community/wkhtmltopdf.git", from: "2.0.0"),
+.package(url: "https://github.com/vapor-community/wkhtmltopdf.git", from: "3.0.0"),
 ```
 
 ## 📘 Overview
 
 First, install [wkhtmltopdf](http://wkhtmltopdf.org/downloads.html). This 
-library is tested on version 0.12.4. Specify the location of `wkhtmltopdf` 
+library is tested on version 0.12.5. Specify the location of `wkhtmltopdf` 
 in the `Document` initialiser. The default is `/usr/local/bin/wkhtmltopdf`. 
 Run it to ensure it and any dependencies are installed correctly.
 
@@ -49,14 +49,14 @@ func pdf(_ req: Request) -> Future<Response> {
         // Add the pages to the document
         document.pages = [page1] + pages
         // Render to a PDF
-        let pdf = try document.generatePDF(on: req)
+        let pdf = try document.generatePDF(eventLoop: req.eventLoop)
         // Now you can return the PDF as a response, if you want
         return pdf.map { data -> Response in
-            let http = HTTPResponse(status: .ok,
-                                    headers: HTTPHeaders([("Content-Type", "application/pdf")]),
-                                    body: data)
-            return Response(http: http,
-                            using: req)
+            return HTTPResponse(
+                status: .ok,
+                headers: HTTPHeaders([("Content-Type", "application/pdf")]),
+                body: .init(data: data)
+            )
         }
     }
 }
