@@ -1,16 +1,16 @@
 import Foundation
-import Service
+import NIO
 
 extension Document {
 
-    public func generatePDF(on container: Container) throws -> Future<Data> {
-        let sharedThreadPool = try container.make(BlockingIOThreadPool.self)
-
-        return sharedThreadPool.runIfActive(eventLoop: container.eventLoop) { () -> Data in
+    public func generatePDF(on threadPool: NIOThreadPool = NIOThreadPool(numberOfThreads: 1), eventLoop: EventLoop) throws -> EventLoopFuture<Data> {
+        return threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
+
             // Create the temp folder if it doesn't already exist
             let workDir = "/tmp/vapor-wkhtmltopdf"
             try fileManager.createDirectory(atPath: workDir, withIntermediateDirectories: true)
+
             // Save input pages to temp files, and build up args to wkhtmltopdf
             var wkArgs: [String] = [
                 "--zoom", self.zoom,

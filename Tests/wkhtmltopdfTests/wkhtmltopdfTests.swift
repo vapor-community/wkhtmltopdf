@@ -1,22 +1,30 @@
 import XCTest
-import Vapor
+import NIO
 @testable import wkhtmltopdf
 
 class wkhtmltopdfTests: XCTestCase {
 
-    var app: Application!
+    var group: EventLoopGroup!
 
     override func setUp() {
         super.setUp()
 
-        app = try! Application(config: .default(), environment: .testing, services: .default())
+        group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        XCTAssertNoThrow(try group.syncShutdownGracefully())
     }
 
     func testStringPDF() throws {
+        let eventLoop = group.next()
+
         let document = Document(margins: 15)
         let page1 = Page("<p>Page from direct HTML</p>")
         document.pages = [page1]
-        let data = try document.generatePDF(on: app).wait()
+        let data = try document.generatePDF(on: eventLoop).wait()
         // Cop-out test, just ensuring that the returned data is something
         XCTAssert(data.count > 50)
         // Visual test
