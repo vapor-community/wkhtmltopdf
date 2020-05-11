@@ -3,8 +3,8 @@ import NIO
 
 extension Document {
 
-    public func generatePDF(on eventLoop: EventLoop) throws -> EventLoopFuture<Data> {
-        return NIOThreadPool(numberOfThreads: 1).runIfActive(eventLoop: eventLoop) {
+    public func generatePDF(on threadPool: NIOThreadPool = NIOThreadPool(numberOfThreads: 1), eventLoop: EventLoop) throws -> EventLoopFuture<Data> {
+        return threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
 
             // Create the temp folder if it doesn't already exist
