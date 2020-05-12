@@ -4,6 +4,7 @@ import NIO
 extension Document {
 
     public func generatePDF(on threadPool: NIOThreadPool = NIOThreadPool(numberOfThreads: 1), eventLoop: EventLoop) throws -> EventLoopFuture<Data> {
+        threadPool.start()
         return threadPool.runIfActive(eventLoop: eventLoop) {
             let fileManager = FileManager.default
 

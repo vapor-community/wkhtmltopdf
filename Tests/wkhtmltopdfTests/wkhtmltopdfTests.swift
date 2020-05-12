@@ -24,7 +24,7 @@ class wkhtmltopdfTests: XCTestCase {
         let document = Document(margins: 15)
         let page1 = Page("<p>Page from direct HTML</p>")
         document.pages = [page1]
-        let data = try document.generatePDF(on: eventLoop).wait()
+        let data = try document.generatePDF(eventLoop: eventLoop).wait()
         // Cop-out test, just ensuring that the returned data is something
         XCTAssert(data.count > 50)
         // Visual test
