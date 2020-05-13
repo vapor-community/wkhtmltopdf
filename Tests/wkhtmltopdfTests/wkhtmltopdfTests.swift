@@ -24,7 +24,10 @@ class wkhtmltopdfTests: XCTestCase {
         let document = Document(margins: 15)
         let page1 = Page("<p>Page from direct HTML</p>")
         document.pages = [page1]
-        let data = try document.generatePDF(eventLoop: eventLoop).wait()
+        let threadPool = NIOThreadPool(numberOfThreads: 1)
+        threadPool.start()
+        let data = try document.generatePDF(on: threadPool, eventLoop: eventLoop).wait()
+        try threadPool.syncShutdownGracefully()
         // Cop-out test, just ensuring that the returned data is something
         XCTAssert(data.count > 50)
         // Visual test
