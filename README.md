@@ -11,7 +11,7 @@ Vapor 4 library for converting HTML (Leaf or otherwise) into PDF files using
 
 Add the following in your `Package.swift` file
 ```Swift
-.package(url: "https://github.com/vapor-community/wkhtmltopdf.git", from: "3.0.0"),
+.package(url: "https://github.com/vapor-community/wkhtmltopdf.git", from: "4.0.0"),
 ```
 
 ## 📘 Overview
@@ -22,37 +22,39 @@ in the `Document` initialiser. The default is `/usr/local/bin/wkhtmltopdf`.
 Run it to ensure it and any dependencies are installed correctly.
 
 To create a PDF, create and configure a `Document`, add one or more `Page`s,
-and then call `generatePDF(on: Request)`. Here is a full example:
+and then call `generatePDF(on: threadPool, eventLoop: eventLoop)`. Here is a full example using Vapor:
 
 ```Swift
 import wkhtmltopdf
 
-func pdf(_ req: Request) -> Future<Response> {
-     // Create document. Margins in mm, can be set individually or all at once.
+func pdf(_ req: Request) -> EventLoopFuture<Response> {
+    // Create document. Margins in mm, can be set individually or all at once.
     // If no margins are set, the default is 20mm.
     let document = Document(margins: 15)
     // Create a page from an HTML string.
     let page1 = Page("<p>Page from direct HTML</p>")
 
     // Create a page from a Leaf template.
-    let page2 = try req.view().render("page_from_leaf_template")
+    let page2 = req.view.render("page_from_leaf_template")
 
     // Create a page from a Leaf template with Context variables.
-    let page3 = try req.view().render("page_from_leaf_template", [ "firstName": "Peter",
-                                                               "lastName": "Pan"])
-    let pages = [ page2, page3].flatten(on: req)
+    let context = ["firstName": "Peter", "lastName": "Pan"]
+    let page3 = req.view.render("page_from_leaf_template", context)
+
+    let pages = [ page2, page3]
+        .flatten(on: req.eventLoop)
         .map { views in
-            return views.map { Page($0.data) }
+            views.map { Page($0.data) }
         }
 
     return pages.flatMap { pages in
         // Add the pages to the document
         document.pages = [page1] + pages
         // Render to a PDF
-        let pdf = try document.generatePDF(eventLoop: req.eventLoop)
+        let pdf = document.generatePDF(on: req.application.threadPool, eventLoop: req.eventLoop)
         // Now you can return the PDF as a response, if you want
-        return pdf.map { data -> Response in
-            return HTTPResponse(
+        return pdf.map { data in
+            return Response(
                 status: .ok,
                 headers: HTTPHeaders([("Content-Type", "application/pdf")]),
                 body: .init(data: data)
