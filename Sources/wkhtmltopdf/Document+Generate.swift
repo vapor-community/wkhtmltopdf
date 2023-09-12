@@ -40,14 +40,15 @@ extension Document {
                 // Call wkhtmltopdf and retrieve the result data
                 let wk = Process()
                 let stdout = Pipe()
-                wk.launchPath = self.launchPath
+                wk.executableURL = URL(fileURLWithPath: self.launchPath)
                 wk.arguments = wkArgs
                 wk.arguments?.append("-") // output to stdout
                 wk.standardOutput = stdout
-                wk.launch()
+                try wk.run()
                 
                 let pdf = stdout.fileHandleForReading.readDataToEndOfFile()
                 continuation.resume(returning: pdf)
+                try stdout.fileHandleForReading.close()
             }.flatMapErrorThrowing { err in
                 continuation.resume(throwing: err)
                 return

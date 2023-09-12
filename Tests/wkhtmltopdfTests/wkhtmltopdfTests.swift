@@ -28,7 +28,7 @@ class wkhtmltopdfTests: XCTestCase {
         let threadPool = NIOThreadPool(numberOfThreads: 1)
         threadPool.start()
         let data = try await document.generatePDF(on: threadPool, eventLoop: eventLoop)
-        try threadPool.syncShutdownGracefully()
+        try await threadPool.shutdownGracefully()
         // Cop-out test, just ensuring that the returned data is something
         XCTAssert(data.count > 50)
         // Visual test
