@@ -2,6 +2,7 @@ import XCTest
 import NIO
 @testable import wkhtmltopdf
 
+@available(macOS 12.0.0, *)
 class wkhtmltopdfTests: XCTestCase {
 
     var group: EventLoopGroup!
@@ -18,7 +19,7 @@ class wkhtmltopdfTests: XCTestCase {
         XCTAssertNoThrow(try group.syncShutdownGracefully())
     }
 
-    func testStringPDF() throws {
+    func testStringPDF() async throws {
         let eventLoop = group.next()
 
         let document = Document(margins: 15)
@@ -26,7 +27,7 @@ class wkhtmltopdfTests: XCTestCase {
         document.pages = [page1]
         let threadPool = NIOThreadPool(numberOfThreads: 1)
         threadPool.start()
-        let data = try document.generatePDF(on: threadPool, eventLoop: eventLoop).wait()
+        let data = try await document.generatePDF(on: threadPool, eventLoop: eventLoop)
         try threadPool.syncShutdownGracefully()
         // Cop-out test, just ensuring that the returned data is something
         XCTAssert(data.count > 50)
