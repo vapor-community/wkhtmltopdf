@@ -1,43 +1,51 @@
-import XCTest
-import NIO
-@testable import wkhtmltopdf
+import Foundation
+import Testing
+import wkhtmltopdf
 
-class wkhtmltopdfTests: XCTestCase {
-
-    var group: EventLoopGroup!
-
-    override func setUp() {
-        super.setUp()
-
-        group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-    }
-
-    override func tearDown() {
-        super.tearDown()
-
-        XCTAssertNoThrow(try group.syncShutdownGracefully())
-    }
-
-    func testStringPDF() throws {
-        let eventLoop = group.next()
-
-        let document = Document(margins: 15)
+@Suite
+struct wkhtmltopdfTests {
+    @Test
+    func testStringPDF() async throws {
         let page1 = Page("<p>Page from direct HTML</p>")
-        document.pages = [page1]
-        let threadPool = NIOThreadPool(numberOfThreads: 1)
-        threadPool.start()
-        let data = try document.generatePDF(on: threadPool, eventLoop: eventLoop).wait()
-        try threadPool.syncShutdownGracefully()
-        // Cop-out test, just ensuring that the returned data is something
-        XCTAssert(data.count > 50)
-        // Visual test
+        let document = Document(pages: [page1], options: [.margins(15)], wkhtmltopdfPath: "/usr/local/bin/wkhtmltopdf")
+        let data = try await document.generatePDF()
+
+        #expect(data.count > 50)
+        #expect(data[0] == 0x25)
+    }
+
+    @Test
+    func testWithOptions() async throws {
+        let page1 = Page(
+            "<h1>Page with Background Color</h1><p>This page has custom options.</p>")
+
+        let page2 = Page(
+            url: "https://example.com",
+            options: [
+                .javascriptDelay(500),
+                .enableJavascript,
+            ])
+
+        let document = Document(
+            pages: [page1, page2],
+            options: [
+                .pageSize(.letter),
+                .orientation(.landscape),
+                .zoom(1.5),
+                .margins(10),
+                .grayscale,
+                .headerCenter("Header Center Text"),
+                .footerCenter("Page [page] of [toPage]"),
+                .footerFontSize(8),
+            ]
+        )
+
+        let data = try await document.generatePDF()
+
+        #expect(data.count > 50)
+        #expect(data[0] == 0x25)
 
         FileManager.default.createFile(atPath: "/tmp/vapor-wkhtmltopdf/testOutput.pdf", contents: data, attributes: nil)
-
         print("Test output PDF can be viewed at /tmp/vapor-wkhtmltopdf/testOutput.pdf")
     }
-
-    static var allTests = [
-        ("testStringPDF", testStringPDF),
-    ]
 }
