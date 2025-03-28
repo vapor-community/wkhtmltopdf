@@ -16,10 +16,10 @@ jobs:
       - name: Prepare WkHTMLToPDF
         run: |
           apt-get update
-          apt install wget fontconfig libxrender1 xfonts-base xfonts-75dpi
+          apt install wget fontconfig libxrender1 xfonts-base xfonts-75dpi -y
           wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_arm64.deb
           dpkg -i wkhtmltox_0.12.6.1-3.jammy_arm64.deb
-          apt install -f
+          apt install -f -y
       - name: Check out WkHTMLToPDF
         uses: actions/checkout@v4
       - name: Run tests with Thread Sanitizer
