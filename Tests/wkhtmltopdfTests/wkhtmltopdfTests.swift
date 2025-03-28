@@ -17,7 +17,11 @@ struct wkhtmltopdfTests {
     @Test
     func testWithOptions() async throws {
         let page1 = Page(
-            "<h1>Page with Background Color</h1><p>This page has custom options.</p>")
+            "<h1>Page with Background Color</h1><p>This page has custom options.</p>",
+            options: [
+                .background(true),
+                .disableSmartShrinking,
+            ])
 
         let page2 = Page(
             url: "https://example.com",
@@ -35,7 +39,7 @@ struct wkhtmltopdfTests {
                 .margins(10),
                 .grayscale,
                 .headerCenter("Header Center Text"),
-                .footerCenter("Page [page] of [toPage]"),
+                .footerCenter("Footer Center Text"),
                 .footerFontSize(8),
             ]
         )
@@ -44,8 +48,5 @@ struct wkhtmltopdfTests {
 
         #expect(data.count > 50)
         #expect(data[0] == 0x25)
-
-        FileManager.default.createFile(atPath: "/tmp/vapor-wkhtmltopdf/testOutput.pdf", contents: data, attributes: nil)
-        print("Test output PDF can be viewed at /tmp/vapor-wkhtmltopdf/testOutput.pdf")
     }
 }
