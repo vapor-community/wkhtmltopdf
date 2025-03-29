@@ -20,23 +20,22 @@ public struct Page {
     }
 
     /// If true, this page contains a URL rather than content to be written to a file
-    var isUrl: Bool {
-        content.isEmpty
-            && options.contains {
-                if case .rawArg(_) = $0 { return true }
-                return false
+    private var firstRawArgOption: String? {
+        for  option in options {
+            if case .rawArg(let arg) = option {
+                return arg
             }
+        }
+        return nil
+    }
+    
+    var isUrl: Bool {
+        content.isEmpty && self.firstRawArgOption != nil
     }
 
     /// Get the URL if this page is a URL page
     var url: String? {
-        guard isUrl else { return nil }
-        for option in options {
-            if case .rawArg(let url) = option {
-                return url
-            }
-        }
-        return nil
+        content.isEmpty ? self.firstRawArgOption : nil
     }
 
     /// Convert all page options to command line arguments
