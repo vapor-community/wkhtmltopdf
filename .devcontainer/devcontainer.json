@@ -1,0 +1,38 @@
+{
+    "name": "Swift",
+    "image": "swift:6.0",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": "false",
+            "username": "vscode",
+            "upgradePackages": "false"
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "os-provided",
+            "ppa": "false"
+        }
+    },
+    "runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined"
+    ],
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "lldb.library": "/usr/lib/liblldb.so"
+            },
+            "extensions": [
+                "swiftlang.swift-vscode"
+            ]
+        }
+    },
+    "remoteUser": "vscode",
+    "postCreateCommand": [
+        "sudo apt update",
+        "sudo apt install wget fontconfig libxrender1 xfonts-base xfonts-75dpi -y",
+        "wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_arm64.deb",
+        "sudo dpkg -i wkhtmltox_0.12.6.1-3.jammy_arm64.deb",
+        "sudo apt install -f"
+    ]
+}
